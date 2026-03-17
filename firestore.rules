@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: movies
+    // Document ID: auto-generated
+    // Fields:
+    //   - title: string (required)
+    //   - description: string
+    //   - thumbnail: string (required, URL)
+    //   - videoUrl: string (required, URL)
+    //   - genre: string
+    //   - releaseYear: number
+    //   - createdAt: timestamp
+    //
+    // Collection: users
+    // Document ID: userId
+    // Fields:
+    //   - email: string (required, email)
+    //   - role: string (required, ['admin', 'user'])
+    //   - subscriptionStatus: string (['active', 'inactive'])
+    //   - subscriptionType: string (['monthly', 'yearly', 'none'])
+    //   - subscriptionExpiry: timestamp
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "nasiralzaabi351@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidMovie(data) {
+      return data.keys().hasAll(['title', 'thumbnail', 'videoUrl']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.thumbnail is string && data.thumbnail.matches("^https?://.*") &&
+             data.videoUrl is string && data.videoUrl.matches("^https?://.*");
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['email', 'role']) &&
+             data.email is string &&
+             data.role in ['admin', 'user'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /movies/{movieId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin() && isValidMovie(request.resource.data);
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && 
+                    (request.resource.data.role == 'user' || isAdmin());
+      allow update: if (isOwner(userId) && request.resource.data.role == resource.data.role) || isAdmin();
+    }
+  }
+}

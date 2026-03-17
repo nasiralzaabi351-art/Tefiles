@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "Movie": {
+      "title": "Movie",
+      "description": "A movie or film available on the platform.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The title of the movie." },
+        "description": { "type": "string", "description": "A brief summary of the movie." },
+        "thumbnail": { "type": "string", "description": "URL to the movie's thumbnail image." },
+        "videoUrl": { "type": "string", "description": "URL to the movie's video file." },
+        "genre": { "type": "string", "description": "The genre of the movie." },
+        "releaseYear": { "type": "integer", "description": "The year the movie was released." },
+        "reactions": { 
+          "type": "object", 
+          "description": "Emoji reactions for the movie (e.g., { '😱': 5, '😂': 10 }).",
+          "properties": {
+            "😱": { "type": "integer" },
+            "😂": { "type": "integer" },
+            "😢": { "type": "integer" },
+            "🔥": { "type": "integer" },
+            "❤️": { "type": "integer" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the movie was added." }
+      },
+      "required": ["title", "thumbnail", "videoUrl"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile and subscription data.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "subscriptionStatus": { "type": "string", "enum": ["active", "inactive"] },
+        "subscriptionType": { "type": "string", "enum": ["monthly", "yearly", "none"] },
+        "subscriptionExpiry": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/movies/{movieId}": {
+      "schema": "Movie",
+      "description": "Collection of all movies."
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and subscription info."
+    }
+  }
+}

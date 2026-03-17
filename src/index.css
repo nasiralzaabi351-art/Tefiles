@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Safe Area Support for Mobile (iOS/Android) */
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+body {
+  background-color: #000;
+  color: #fff;
+  /* Prevent scrolling bounce on iOS */
+  overscroll-behavior-y: none;
+}
+
+/* Ensure navbar respects the notch */
+nav {
+  padding-top: calc(1rem + var(--safe-area-top)) !important;
+}
+
+/* Ensure footer and bottom modals respect the home indicator */
+footer {
+  padding-bottom: calc(3rem + var(--safe-area-bottom)) !important;
+}
+
+.fixed-bottom-safe {
+  bottom: calc(1rem + var(--safe-area-bottom)) !important;
+}
+
+.fixed-top-safe {
+  top: calc(1rem + var(--safe-area-top)) !important;
+}
